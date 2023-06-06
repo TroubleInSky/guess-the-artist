@@ -11,6 +11,8 @@ import { IPlayerInfo } from '../../common/interfaces/player/iplayer-info.interfa
 import { PlayerService } from '../player/player.service';
 import { GameNotFoundException } from '../../common/exceptions/game/game-not-found.exception';
 import { IGameFinishResponse } from '../../common/interfaces/game/igame-finish.response.interface';
+import { Filename } from '../../common/enums/file/filename.enum';
+import { FileLoggerService } from '../file-logger/file-logger.service';
 
 @Injectable()
 export class GameService {
@@ -19,6 +21,7 @@ export class GameService {
     private readonly gameRepository: Repository<GameEntity>,
     private readonly artistService: ArtistService,
     private readonly playerService: PlayerService,
+    private readonly fileLoggerService: FileLoggerService,
   ) {}
 
   getGameScore(step: number): number {
@@ -90,6 +93,19 @@ export class GameService {
     }
     const score = this.getGameScore(game.step);
     const player = await this.playerService.savePlayer(playerInfo, score);
+    const topPlayers = await this.playerService.getTopPlayers(
+      appConfigInstance.TOP_PLAYERS_TO_SAVE,
+    );
+    for (const topPlayer of topPlayers) {
+      if (topPlayer.username === player.username) {
+        this.fileLoggerService.saveToFile(
+          Filename.TOP_PLAYERS,
+          topPlayers
+            .map((topPlayer) => `${topPlayer.username}:${topPlayer.score}`)
+            .join('\n'),
+        );
+      }
+    }
     return {
       username: player.username,
       score,

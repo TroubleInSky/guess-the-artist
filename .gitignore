@@ -6,3 +6,6 @@ tmp/
 temp/
 .env
 yarn.lock
+albums_available.txt
+top_players.txt
+database.sqlite

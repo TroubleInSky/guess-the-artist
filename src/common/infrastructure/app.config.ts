@@ -26,6 +26,10 @@ export class AppConfig {
     return this.configService.get<number>('POINTS_PER_STEP');
   }
 
+  public get TOP_PLAYERS_TO_SAVE(): number {
+    return this.configService.get<number>('TOP_PLAYERS_TO_SAVE');
+  }
+
   public get ARTISTS(): string[] {
     const artistsString = this.configService.get<string>('ARTISTS');
     return artistsString.split('|').map((str) => str.trim());

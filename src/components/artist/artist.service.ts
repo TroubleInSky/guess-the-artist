@@ -9,6 +9,8 @@ import { ArtistHasNotEnoughAlbumsException } from '../../common/exceptions/artis
 import { IITunesResponse } from '../../common/interfaces/itunes/iitunes-response.interface';
 import { ArtistNotFoundException } from '../../common/exceptions/artist/artist-not-found.exception';
 import { IITunesResult } from '../../common/interfaces/itunes/iitunes-result.interface';
+import { FileLoggerService } from '../file-logger/file-logger.service';
+import { Filename } from '../../common/enums/file/filename.enum';
 
 @Injectable()
 export class ArtistService implements OnModuleInit {
@@ -18,6 +20,7 @@ export class ArtistService implements OnModuleInit {
     @InjectRepository(ArtistAlbumEntity)
     private readonly artistAlbumRepository: Repository<ArtistAlbumEntity>,
     private readonly iTunesService: ITunesService,
+    private readonly fileLoggerService: FileLoggerService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -103,6 +106,13 @@ export class ArtistService implements OnModuleInit {
         randomAlbums.map((album: IITunesResult) =>
           this.addArtistAlbum(artist.id, album),
         ),
+      );
+      this.fileLoggerService.saveToFile(
+        Filename.ALBUMS_AVAILABLE,
+        `${artist.name} new albums available: ${randomAlbums
+          .map((album) => album.collectionName)
+          .join(',')} \n`,
+        true,
       );
       return artist;
     };
